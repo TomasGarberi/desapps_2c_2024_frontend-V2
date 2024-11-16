@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "lattice3",
+    "name": "Lattice",
     "slug": "lattice3",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -20,7 +20,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.uade.lattice3"
+      "package": "com.uade.lattice"
     },
     "web": {
       "favicon": "./assets/favicon.png"

@@ -82,70 +82,42 @@ const NewPostScreen = () => {
 
     const handlePublish = async () => {
         try {
-              // Obtener el ID de usuario
-                const idResponse = await axios.get('/users/getId');
-                const userId = idResponse.data;
-        
-                // Crear el FormData y agregar los datos
-                const formData = new FormData();
-                formData.append("descripcion", description);
-                formData.append("direc", location);
-        
-                // Iterar sobre las imágenes seleccionadas y agregar las imágenes como Blob al FormData
-                images.forEach((image) => {
-                    // Convertir la imagen base64 a un Blob
-                    const imageBlob = base64ToBlob(image.uri);
-        
-                    // Crear un objeto File para poder agregarlo al FormData
-                    const file = new File([imageBlob], image.fileName, { type: image.mimeType });
-        
-                    // Agregar la imagen al FormData
-                    formData.append("imagesPost", file);
+            const idResponse = await axios.get('/users/getId');
+            const userId = idResponse.data;
+
+            const formData = new FormData();
+            formData.append("descripcion", description);
+            formData.append("direc", location);
+
+            images.forEach((image) => {
+                formData.append("imagesPost", {
+                    uri: image.uri,
+                    type: image.mimeType || "image/jpeg",
+                    name: image.fileName || "photo.jpg"
                 });
-        
-                // Verificar el contenido de formData
-                for (let pair of formData.entries()) {
-                    console.log(pair[0] + ": " + pair[1]);
-                }
-        
-                // Enviar la solicitud POST al backend
-                const response = await axios.post("/posts", formData, {
-                    headers: {
-                        "Content-Type": "multipart/form-data" // Necesario para subir archivos
-                    },
-                });
-        
-                if (response.status === 201) {
-                    // Lógica de publicación omitida para el ejemplo
-                    setShowSuccessModal(true); // Mostrar modal de éxito
-        
-                    // Timeout para cerrar el modal y redirigir
-                    setTimeout(() => {
-                        setShowSuccessModal(false);
-                        navigation.navigate('MainTabs', {
-                            screen: 'Home',
-                            params: { reload: true },
-                        });
-                    }, 2000);
-                }
+            });
+
+            const response = await axios.post("/posts", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                },
+            });
+
+            if (response.status === 201) {
+                setShowSuccessModal(true);
+
+                setTimeout(() => {
+                    setShowSuccessModal(false);
+                    navigation.navigate('MainTabs', {
+                        screen: 'Home',
+                        params: { reload: true },
+                    });
+                }, 2000);
+            }
         } catch (error) {
             console.error("Error al publicar:", error);
             alert("Error al publicar");
         }
-    };
-
-
-    // Función para convertir base64 a Blob
-    const base64ToBlob = (base64Data) => {
-        const byteString = atob(base64Data.split(',')[1]);
-        const arrayBuffer = new ArrayBuffer(byteString.length);
-        const uint8Array = new Uint8Array(arrayBuffer);
-    
-        for (let i = 0; i < byteString.length; i++) {
-            uint8Array[i] = byteString.charCodeAt(i);
-        }
-    
-        return new Blob([uint8Array], { type: 'image/jpeg' }); // Puedes cambiar el tipo MIME si es necesario
     };
 
     return (
@@ -224,7 +196,6 @@ const NewPostScreen = () => {
                 <Text style={styles.publishButtonText}>Publicar</Text>
             </TouchableOpacity>
 
-            {/* Modal de éxito */}
             <Modal
                 transparent
                 visible={showSuccessModal}
@@ -363,3 +334,4 @@ const styles = StyleSheet.create({
 });
 
 export default NewPostScreen;
+
